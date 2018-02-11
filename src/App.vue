@@ -81,4 +81,19 @@ a {
       font-size: 30px;
     }
 }
+
+.splash {
+  width: 1000px;
+  height: 500px;
+  border-radius: 5px;
+  background-color: rgba(255,255,255, 0.7);
+  color: #2c3e50;
+}
+
+.text-splash {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 </style>

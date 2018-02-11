@@ -7,7 +7,7 @@
         h2 Welcome, cowboy.
         p <b>Billy the Kid</b> has been seen at The Old Vitalik's saloon, with his crew of outlaws. Billy is public enemy #1, and there's a <b>reward of several ETHERs</b> if you take him, dead or alive.
         p You're about to start a <b>gun duel with Billy</b>. But you should better be careful, because you've been drinking too much whisky ! That would be bad if you happened to kill the wrong cowboy and go to jail, losing all you money...
-        p The rule of the game is simple: <b>hit the cowboy 5 times</b>. Then we'll go to the Sheriff in that lives on the Ethereum Blockchain, and see whether you deserve the reward or deserve to be jailed !
+        p The rule of the game is simple: <b>hit the cowboy 5 times</b>. Then we'll go to the Sheriff that lives on the Ethereum Blockchain, and see whether you deserve the reward or deserve to be jailed !
         button(id="startButton" @click="startGame") Start the game!
       #shootingRange.splash(@click="shoot" v-if="gameOngoing")
         img(id="cowboy" src="../assets/cowboy.png" @click="hit")
@@ -119,24 +119,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.splash {
-  width: 1000px;
-  height: 500px;
-  border-radius: 5px;
-  background-color: rgba(255,255,255, 0.7);
-  color: #2c3e50;
-}
-
-.text-splash {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  p {
-    width: 50%;
-    text-align: center;
-  }
+p {
+  width: 50%;
+  text-align: center;
 }
 
 #shootingRange {
