@@ -7,11 +7,11 @@
 # - have retrieved your Cloudflare resource id for the site to deploy
 
 # AWS SETTINGS
-aws_target_bucket="afistfulofsatoshis"
+aws_target_bucket="afistfulofsatoshis.fun"
 aws_profile="afistfulofsatoshis"
 
 # CLOUDFLARE SETTINGS
-cloudflare_resource_id="TODO"
+cloudflare_resource_id="0391b5867d6a5c5fb3dc08c5ed1519da"
 cloudflare_email_file=".cloudflare-email"
 cloudflare_api_file=".cloudflare-api"
 cloudflare_email=$(cat "$cloudflare_email_file")
@@ -23,6 +23,8 @@ npm run build
 # UPLOAD ALL BUILT SITE FILES TO S3
 aws s3 cp dist/ s3://$aws_target_bucket/dist --recursive --profile $aws_profile --acl public-read
 aws s3 cp index.html s3://$aws_target_bucket/index.html --profile $aws_profile --acl public-read
+aws s3 cp favicon.png s3://$aws_target_bucket/favicon.png --profile $aws_profile --acl public-read
+aws s3 cp bullet.mp3 s3://$aws_target_bucket/bullet.mp3 --profile $aws_profile --acl public-read
 aws s3 cp social.png s3://$aws_target_bucket/social.png --profile $aws_profile --acl public-read
 
 # PURGE EVERYTHING ON CLOUDFLARE CDN TO RELOAD NEW FILES VERSIONS

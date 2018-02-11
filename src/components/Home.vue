@@ -3,14 +3,22 @@
       div.header
         h1 A fistful of Satoshis
         h2 A Blockchain-based Western shooting game
-      #startScreen.splash.text-splash(v-if="!gameOngoing")
-        h2 Welcome to the game!
+      #startScreen.splash.text-splash(v-if="gameNotStarted")
+        h2 Welcome, cowboy.
+        p <b>Billy the Kid</b> has been seen at The Old Vitalik's saloon, with his crew of outlaws. Billy is public enemy #1, and there's a <b>reward of several ETHERs</b> if you take him, dead or alive.
+        p You're about to start a <b>gun duel with Billy</b>. But you should better be careful, because you've been drinking too much whisky ! That would be bad if you happened to kill the wrong cowboy and go to jail, losing all you money...
+        p The rule of the game is simple: <b>hit the cowboy 5 times</b>. Then we'll go to the Sheriff in that lives on the Ethereum Blockchain, and see whether you deserve the reward or deserve to be jailed !
         button(id="startButton" @click="startGame") Start the game!
       #shootingRange.splash(@click="shoot" v-if="gameOngoing")
         img(id="cowboy" src="../assets/cowboy.png" @click="hit")
         #badges
           img.badge(v-for="s in score" src="../assets/badge.png")
       #waitScreen.splash.text-splash(v-if="gameFinished")
+        h2 You killed that cowboy!
+        p Is it really Billy the Kid that you killed? Or just some innocent cowboy?
+        p The only way to find it out is to go the Sheriff that lives on the Ethereum Blockchain. That'll cost you 0.25 ETH from the Rinkeby Testnet (get <u><a href="https://faucet.rinkeby.io/" target="_blank">some for free here</a></u>).
+        p If you killed an innocent, you'll go to jail and lose your 0.25 ETH. If you killed Billy, you'll get all the money owned by the Sheriff!
+        button(id="startButton" @click="startGame") Go to the Sheriff
 </template>
 
 <script>
@@ -18,15 +26,15 @@ import { abi } from '../contracts/abi'
 import { address } from '../contracts/address'
 
 export default {
-  components: {
-    // 'app-memory': Memory
-  },
   data() {
     return {
       score: -1
     }
   },
   computed: {
+    gameNotStarted() {
+      return this.score < 0;
+    },
     gameOngoing() {
       return this.score >= 0 && this.score < 5;
     },
@@ -35,38 +43,14 @@ export default {
     }
   },
   methods: {
+    assetPath: function (asset) {
+      return require('../assets/' + asset);
+    },
     startGame() {
       this.score += 1;
     },
-    // Called at page load, to retrieve all existing memories from the Blockchain.
-    // We use an infura node instead of an in-browser wallet, so that all users
-    // can see the full list of memories, even if they're not tech-savvy.
-    populateMemories() {
-      // Retrieve the contract to interact with it
-      var remoteWeb3 = new Web3(
-          new Web3.providers.HttpProvider('https://rinkeby.infura.io/')
-      );
-      const Memorial = new remoteWeb3.eth.Contract(abi, address);
-
-      self = this;
-
-      // Get the current number of memories so we know till where we can iterate
-      Memorial.methods.getMemoriesCount().call(function (error, result) {
-        const MemoriesCount = result;
-        const MaxIndex = Math.min(self.maxOnDisplay, MemoriesCount);
-
-        var selff = self;
-        // Iterate on all the memories and insert them in the Vue instance data
-        for (var i = 0; i < MaxIndex; i++) {
-          Memorial.methods.memories(i).call(function (error, result) {
-            selff.insertMemory(result);
-          });
-        };
-        console.log('Done loading all memories');
-      });
-    },
     shoot: function(evt){
-      var audio = new Audio('./src/assets/bullet.mp3');
+      var audio = new Audio('https://s3.eu-central-1.amazonaws.com/afistfulofsatoshis.fun/bullet.mp3');
       audio.play();
 
       var canvas = document.getElementById('shootingRange');
@@ -76,7 +60,7 @@ export default {
       var y = Math.floor( ( evt.clientY - rect.top ) / ( rect.bottom - rect.top ) * canvas.offsetHeight );
 
       var img = document.createElement("img");
-      img.src = './src/assets/hole.png';
+      img.src = this.assetPath('hole.png');
       img.style.height = "70px";
       img.style.position = "absolute";
       img.style.top = y - 18 + "px";
@@ -87,7 +71,6 @@ export default {
       document.getElementById('shootingRange').appendChild(img);
     },
     hit: function(evt) {
-      console.log("hit!")
       this.score+= 1;
       if (this.gameFinished){
         setTimeout(this.cleanup(), 500);
@@ -136,21 +119,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.title-links {
-  font-size: 14px;
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-// .header {
-//   margin-bottom: 100px;
-// }
-
-p {
-  text-align: center;
-  font-size: 12px;
-}
-
 .splash {
   width: 1000px;
   height: 500px;
@@ -163,6 +131,12 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+
+  p {
+    width: 50%;
+    text-align: center;
+  }
 }
 
 #shootingRange {
