@@ -1,0 +1,84 @@
+<template>
+  <div id="app">
+    <div class="wrapper">
+      <div class="container">
+        <router-view></router-view>
+      </div>
+      <app-footer></app-footer>
+    </div>
+  </div>
+</template>
+
+<script>
+import Footer from './components/Footer.vue'
+
+export default {
+  name: 'app',
+  components: {
+    'app-footer': Footer
+  }
+}
+</script>
+<style lang="scss">
+#app {
+  font-family: 'Lato', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: white;
+  background-image: url('./assets/chair.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+body {
+  margin: 0;
+}
+
+h1 {
+  margin-top: 5px;
+  text-align: center;
+  font-family: 'Rye';
+  font-size: 70px;
+  letter-spacing: 5px;
+  margin-bottom: 20px;
+}
+h2 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 40px;
+}
+
+.wrapper {
+  min-height: 100vh;
+}
+
+.container {
+  padding: 30px;
+  padding-top: 70px;
+  max-width: 1000px;
+  height: 100%;
+  margin: 0 auto;
+
+  @media screen and (max-width: 1000px){
+      margin-left: 20px !important;
+      margin-right: 20px !important;
+  }
+}
+
+@media screen and (max-width:1000px){
+  .hide-mobile{
+      display:none
+  }
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+@media screen and (max-width: 1000px){
+    h1 {
+      font-size: 30px;
+    }
+}
+</style>
