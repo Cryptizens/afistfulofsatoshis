@@ -24,7 +24,7 @@ contract Sheriff is usingOraclize {
     mapping (address => uint) pendingWithdrawals;
 
     function Sheriff() {
-        oraclize_setProof(proofType_Ledger); // sets the Ledger authenticity proof in the constructor
+      // Constructor function, not used for anything specific yet
     }
 
     // Fallback function to increase the reward
@@ -33,42 +33,33 @@ contract Sheriff is usingOraclize {
     }
 
     // the callback function is called by Oraclize when the result is ready
-    // the oraclize_randomDS_proofVerify modifier prevents an invalid proof to execute this function code:
-    // the proof validity is fully verified on-chain
-    function __callback(bytes32 _queryId, string _result, bytes _proof) public {
+    function __callback(bytes32 _queryId, string _result) public {
         require (msg.sender == oraclize_cbAddress());
         enteredCallback(_queryId);
 
+        newRandomNumber_bytes(bytes(_result)); // this is the resulting random number (bytes)
+
+        // for simplicity of use, let's also convert the random bytes to uint if we need
+        uint randomNumber = uint(keccak256(_result)) % 3; // this is an efficient way to get the uint out in the [0, maxRange] range
+
+        newRandomNumber_uint(randomNumber); // this is the resulting random number (uint)
+
         address playerAddress = queriesMapping[_queryId];
-
-        if (oraclize_randomDS_proofVerify__returnCode(_queryId, _result, _proof) != 0) {
-            // the proof verification has failed, do we need to take any action here? (depends on the use case)
+        // the player is lucky and has killed the outlaw !
+        if (randomNumber == 0) {
+          // Broadcast the event
+          outlawKilled(playerAddress);
+          // Transfer the full reward to the lucky player
+          pendingWithdrawals[playerAddress] += reward;
+          // Reset the reward
+          reward = 0;
+        // the played messed it up and killed an innocent cowboy
         } else {
-            // the proof verification has passed
-            // now that we know that the random number was safely generated, let's use it..
-            newRandomNumber_bytes(bytes(_result)); // this is the resulting random number (bytes)
-
-            // for simplicity of use, let's also convert the random bytes to uint if we need
-            uint randomNumber = uint(keccak256(_result)) % 3; // this is an efficient way to get the uint out in the [0, maxRange] range
-
-            newRandomNumber_uint(randomNumber); // this is the resulting random number (uint)
-
-            // the player is lucky and has killed the outlaw !
-            if (randomNumber == 0) {
-              // Broadcast the event
-              outlawKilled(playerAddress);
-              // Transfer the full reward to the lucky player
-              pendingWithdrawals[playerAddress] += reward;
-              // Reset the reward
-              reward = 0;
-            // the played messed it up and killed an innocent cowboy
-            } else {
-              innocentKilled(playerAddress);
-            }
+          innocentKilled(playerAddress);
         }
     }
 
-    function shoot() payable public {
+    function askSheriff() payable public {
         // Ensure entry ticket is paid
         require(msg.value >= minimumStake);
         // Increase reward by the amount just paid

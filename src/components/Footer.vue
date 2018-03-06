@@ -1,15 +1,8 @@
-<template lang="html">
-    <div class="footer-container">
-      <div>
-        © 2018 / <router-link :to="'/'"><u>Home</u></router-link> / <router-link :to="'about'"><u>About</u></router-link> / Brought to you by Thomas Vanderstraeten from <u><a target="_blank" href="https://cryptizens.io">Cryptizens.io</a></u>
-      </div>
-    </div>
+<template lang="pug">
+    .footer-container
+      div
+        | © 2018 / <a href="#"><u>About</u></a> / Brought to you by Thomas Vanderstraeten from <u><a target="_blank" href="https://cryptizens.io">Cryptizens.io</a></u>
 </template>
-
-<script>
-export default {
-}
-</script>
 
 <style lang="scss" scoped>
 .footer-container {

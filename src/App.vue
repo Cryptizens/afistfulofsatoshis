@@ -1,21 +1,20 @@
-<template>
-  <div id="app">
-    <div class="wrapper">
-      <div class="container">
-        <router-view></router-view>
-      </div>
-      <app-footer></app-footer>
-    </div>
-  </div>
+<template lang="pug">
+  div(id="app")
+    .wrapper
+      .container
+        Home
+      Footer
 </template>
 
 <script>
+import Home from './components/Home.vue'
 import Footer from './components/Footer.vue'
 
 export default {
   name: 'app',
   components: {
-    'app-footer': Footer
+    Home,
+    Footer
   }
 }
 </script>
@@ -74,6 +73,20 @@ h2 {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+button {
+  background-color: #151515;
+  font-weight: bold;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 1000px){

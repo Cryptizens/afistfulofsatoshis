@@ -1,87 +1,12 @@
 export const abi = [
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_lat",
-				"type": "int256"
-			},
-			{
-				"name": "_lon",
-				"type": "int256"
-			},
-			{
-				"name": "_timing",
-				"type": "bytes32"
-			},
-			{
-				"name": "_story",
-				"type": "bytes32"
-			}
-		],
-		"name": "recordMemory",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "moderateMemory",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [],
-		"name": "getMemoriesCount",
+		"name": "reward",
 		"outputs": [
-			{
-				"name": "count",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
 			{
 				"name": "",
 				"type": "uint256"
-			}
-		],
-		"name": "memories",
-		"outputs": [
-			{
-				"name": "lat",
-				"type": "int256"
-			},
-			{
-				"name": "lon",
-				"type": "int256"
-			},
-			{
-				"name": "timing",
-				"type": "bytes32"
-			},
-			{
-				"name": "story",
-				"type": "bytes32"
-			},
-			{
-				"name": "owner",
-				"type": "address"
 			}
 		],
 		"payable": false,
@@ -91,15 +16,78 @@ export const abi = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "curator",
+		"name": "minimumStake",
 		"outputs": [
 			{
 				"name": "",
-				"type": "address"
+				"type": "uint256"
 			}
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "myid",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
+				"type": "string"
+			},
+			{
+				"name": "proof",
+				"type": "bytes"
+			}
+		],
+		"name": "__callback",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_queryId",
+				"type": "bytes32"
+			},
+			{
+				"name": "_result",
+				"type": "string"
+			}
+		],
+		"name": "__callback",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "askSheriff",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -107,36 +95,65 @@ export const abi = [
 		"inputs": [
 			{
 				"indexed": false,
-				"name": "memoryId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "lat",
-				"type": "int256"
-			},
-			{
-				"indexed": false,
-				"name": "lon",
-				"type": "int256"
-			},
-			{
-				"indexed": false,
-				"name": "timing",
+				"name": "",
 				"type": "bytes32"
-			},
+			}
+		],
+		"name": "enteredCallback",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
 			{
 				"indexed": false,
-				"name": "story",
-				"type": "bytes32"
-			},
-			{
-				"indexed": false,
-				"name": "owner",
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "NewMemory",
+		"name": "innocentKilled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "outlawKilled",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "newRandomNumber_bytes",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "newRandomNumber_uint",
 		"type": "event"
 	}
 ]

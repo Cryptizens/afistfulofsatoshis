@@ -3,22 +3,34 @@
       div.header
         h1 A fistful of Satoshis
         h2 A Blockchain-based Western shooting game
+
       #startScreen.splash.text-splash(v-if="gameNotStarted")
         h2 Welcome, cowboy.
         p <b>Billy the Kid</b> has been seen at The Old Vitalik's saloon, with his crew of outlaws. Billy is public enemy #1, and there's a <b>reward of several ETHERs</b> if you take him, dead or alive.
-        p You're about to start a <b>gun duel with Billy</b>. But you should better be careful, because you've been drinking too much whisky ! That would be bad if you happened to kill the wrong cowboy and go to jail, losing all you money...
-        p The rule of the game is simple: <b>hit the cowboy 5 times</b>. Then we'll go to the Sheriff that lives on the Ethereum Blockchain, and see whether you deserve the reward or deserve to be jailed !
+        p You will enter a <b>gun duel with Billy</b>. But be careful: you had <b>too much whisky</b>! It would be bad if you killed the wrong cowboy and went to jail, losing all you money...
+        p The rule is simple: <b>hit the cowboy 5 times</b>. Then we'll go to the Sheriff that lives on the Ethereum Blockchain, and see whether you deserve the reward or deserve to be jailed!
+        br
         button(id="startButton" @click="startGame") Start the game!
+
       #shootingRange.splash(@click="shoot" v-if="gameOngoing")
         img(id="cowboy" src="../assets/cowboy.png" @click="hit")
         #badges
           img.badge(v-for="s in score" src="../assets/badge.png")
+
       #waitScreen.splash.text-splash(v-if="gameFinished")
         h2 You killed that cowboy!
         p Is it really Billy the Kid that you killed? Or just some innocent cowboy?
-        p The only way to find it out is to go the Sheriff that lives on the Ethereum Blockchain. That'll cost you 0.25 ETH from the Rinkeby Testnet (get <u><a href="https://faucet.rinkeby.io/" target="_blank">some for free here</a></u>).
-        p If you killed an innocent, you'll go to jail and lose your 0.25 ETH. If you killed Billy, you'll get all the money owned by the Sheriff!
-        button(id="startButton" @click="startGame") Go to the Sheriff
+        p The only way to find it out is to go the <b>Sheriff that lives on the Ethereum Blockchain</b>. That'll cost you <b>0.25 ETH</b> from the Rinkeby Testnet (get <u><a href="https://faucet.rinkeby.io/" target="_blank">some for free here</a></u>).
+        p If you killed an innocent, you'll go to jail and lose your 0.25 ETH. If you killed Billy, you'll <b>get all the money</b> owned by the Sheriff!
+        p The current reward at stake is <b>{{ rewardAmount }} ETH</b>.
+        br
+        button(id="startButton" @click="goToSheriff") Go to the Sheriff
+
+      #waitScreen.splash.text-splash(v-if="pendingAnswer")
+        img(src="http://www.jettools.com/images/animated_spinner.gif" style="height: 50px")
+        h2 The Sheriff is reviewing the corpse!
+        p You'll know soon whether you won or lost the game...this usually takes about <b>2 minutes</b>. Why? Because your Blockchain transaction needs to mined and other funky stuff needs to happen asynchronously on the Blockchain!
+        p In the meanwhile, why don't you <b>check out the blog</b> to discover more on the dynamics of this game?
 </template>
 
 <script>
@@ -28,7 +40,9 @@ import { address } from '../contracts/address'
 export default {
   data() {
     return {
-      score: -1
+      score: -1,
+      sheriffState: 'pending_request',
+      rewardAmount: null
     }
   },
   computed: {
@@ -39,7 +53,10 @@ export default {
       return this.score >= 0 && this.score < 5;
     },
     gameFinished() {
-      return this.score >= 5;
+      return (this.score >= 5 && this.sheriffState == 'pending_request');
+    },
+    pendingAnswer() {
+      return this.sheriffState == 'pending_answer';
     }
   },
   methods: {
@@ -51,7 +68,7 @@ export default {
     },
     shoot: function(evt){
       var audio = new Audio('https://s3.eu-central-1.amazonaws.com/afistfulofsatoshis.fun/bullet.mp3');
-      audio.play();
+      // audio.play();
 
       var canvas = document.getElementById('shootingRange');
       var rect = canvas.getBoundingClientRect();
@@ -74,6 +91,7 @@ export default {
       this.score+= 1;
       if (this.gameFinished){
         setTimeout(this.cleanup(), 500);
+        this.getRewardAmount();
       }
     },
     cleanup() {
@@ -81,12 +99,42 @@ export default {
       for(var i = 0; i < images.length; i++) {
           images[i].style.visibility = 'hidden';
       }
+    },
+    getRewardAmount() {
+      self = this;
+      web3.eth.getBalance(address, function(e,r){
+        self.rewardAmount = r.c[0]/10000;
+      });
+    },
+    goToSheriff() {
+      self = this
+      this.contract().askSheriff({from: this.account(), value: this.stake()}, function(error, result){
+        console.log(error);
+        console.log(result);
+        self.evolveSheriffState('pending_answer');
+      });
+    },
+    // Helper function to get the contract js interface, using an in-browser
+    // wallet such as MetaMask - we cannot use infura here since we're making
+    // a real transaction rather than a call and hence need the user to approve
+    // the Tx before it is sent to the blockchain
+    contract() {
+      return web3.eth.contract(abi).at(address);
+    },
+    account() {
+      return web3.eth.accounts[0];
+    },
+    stake() {
+      return web3.toWei('0.25', 'ether');
+    },
+    evolveSheriffState: function(state){
+      this.sheriffState = state;
     }
   },
   mounted() {
     $(document).bind('DOMNodeInserted', function(event) {
       if (event.target.id == "cowboy") {
-        animateDiv();
+        moveCowBoy();
       }
     });
 
@@ -97,13 +145,13 @@ export default {
         return nw;
     }
 
-    function animateDiv(){
+    function moveCowBoy(){
         var newq = makeNewPosition();
         var oldq = $('#cowboy').offset().left;
         var speed = calcSpeed(oldq, newq);
 
         $('#cowboy').animate({ bottom: 10, left: newq }, speed, function(){
-          animateDiv();
+          moveCowBoy();
         });
     };
 
@@ -113,7 +161,37 @@ export default {
         var speed = Math.ceil(x/speedModifier);
 
         return speed;
-    }
+    };
+
+    this.contract().enteredCallback(function(error, result) {
+      console.log('enteredCallback');
+      if (error) return;
+      console.log(result.args);
+    });
+
+    this.contract().newRandomNumber_bytes(function(error, result) {
+      console.log('newRandomNumber_bytes');
+      if (error) return;
+      console.log(result.args);
+    });
+
+    this.contract().newRandomNumber_uint(function(error, result) {
+      console.log('newRandomNumber_uint');
+      if (error) return;
+      console.log(result.args);
+    });
+
+    this.contract().outlawKilled(function(error, result) {
+      console.log('outlawKilled');
+      if (error) return;
+      console.log(result.args);
+    });
+
+    this.contract().innocentKilled(function(error, result) {
+      console.log('innocentKilled');
+      if (error) return;
+      console.log(result.args);
+    });
   }
 }
 </script>
