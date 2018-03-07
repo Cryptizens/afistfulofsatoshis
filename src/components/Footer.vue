@@ -1,7 +1,7 @@
 <template lang="pug">
     .footer-container
       div
-        | © 2018 / <a href="#"><u>About</u></a> / Brought to you by Thomas Vanderstraeten from <u><a target="_blank" href="https://cryptizens.io">Cryptizens.io</a></u>
+        | © 2018 / <a href="https://medium.com/@vanderstraeten.thomas/blockchain-project-5-a-fistful-of-satoshis-2d104b542981" target="_blank"><u>About</u></a> / Brought to you by Thomas Vanderstraeten from <u><a target="_blank" href="https://cryptizens.io">Cryptizens.io</a></u>
 </template>
 
 <style lang="scss" scoped>

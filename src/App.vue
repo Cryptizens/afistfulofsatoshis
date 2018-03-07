@@ -44,7 +44,7 @@ h1 {
 h2 {
   text-align: center;
   font-size: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .wrapper {

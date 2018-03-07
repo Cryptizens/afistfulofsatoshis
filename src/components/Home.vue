@@ -6,7 +6,7 @@
 
       #startScreen.splash.text-splash(v-if="gameNotStarted")
         h2 Welcome, cowboy.
-        p <b>Billy the Kid</b> has been seen at The Old Vitalik's saloon, with his crew of outlaws. Billy is public enemy #1, and there's a <b>reward of several ETHERs</b> if you take him, dead or alive.
+        p <b>Billy the Kid</b> has been seen at The Old Vitalik's saloon, with his crew of outlaws. Billy is public enemy #1, and there's a <b>reward of up to 1 ETHER</b> if you take him, dead or alive.
         p You will enter a <b>gun duel with Billy</b>. But be careful: you had <b>too much whisky</b>! It would be bad if you killed the wrong cowboy and went to jail, losing all you money...
         p The rule is simple: <b>hit the cowboy 5 times</b>. Then we'll go to the Sheriff that lives on the Ethereum Blockchain, and see whether you deserve the reward or deserve to be jailed!
         br
@@ -17,20 +17,32 @@
         #badges
           img.badge(v-for="s in score" src="../assets/badge.png")
 
-      #waitScreen.splash.text-splash(v-if="gameFinished")
+      #gameFinishedScreen.splash.text-splash(v-if="gameFinished")
         h2 You killed that cowboy!
-        p Is it really Billy the Kid that you killed? Or just some innocent cowboy?
+        p Was it Billy the Kid, or just some innocent cowboy?
         p The only way to find it out is to go the <b>Sheriff that lives on the Ethereum Blockchain</b>. That'll cost you <b>0.25 ETH</b> from the Rinkeby Testnet (get <u><a href="https://faucet.rinkeby.io/" target="_blank">some for free here</a></u>).
-        p If you killed an innocent, you'll go to jail and lose your 0.25 ETH. If you killed Billy, you'll <b>get all the money</b> owned by the Sheriff!
-        p The current reward at stake is <b>{{ rewardAmount }} ETH</b>.
+        p If you killed an innocent, you'll go to jail and lose your money. If you killed Billy, you'll get <b>a reward from the Sheriff</b>!
+        p The amount of money in the Sheriff's vault is <b>{{ moneyInVault }} ETH</b>, and the max reward you can get is 1 ETH.
         br
         button(id="startButton" @click="goToSheriff") Go to the Sheriff
 
-      #waitScreen.splash.text-splash(v-if="pendingAnswer")
-        img(src="http://www.jettools.com/images/animated_spinner.gif" style="height: 50px")
+      #pendingAnswerScreen.splash.text-splash(v-if="pendingAnswer")
+        img(src="https://s3.eu-central-1.amazonaws.com/afistfulofsatoshis.fun/spinner.gif" style="height: 50px")
         h2 The Sheriff is reviewing the corpse!
-        p You'll know soon whether you won or lost the game...this usually takes about <b>2 minutes</b>. Why? Because your Blockchain transaction needs to mined and other funky stuff needs to happen asynchronously on the Blockchain!
-        p In the meanwhile, why don't you <b>check out the blog</b> to discover more on the dynamics of this game?
+        p You'll know soon whether you won or lost the game...this usually takes about <b>2-3 minutes</b>. Why? Because your transaction needs to mined and other funky stuff needs to happen <b>asynchronously on the Blockchain</b>.
+        p In the meanwhile, why don't you <b><u><a href="https://medium.com/@vanderstraeten.thomas/blockchain-project-5-a-fistful-of-satoshis-2d104b542981" target="_blank">check out the blog</a></u></b> to discover more on the intricacies of gaming on Blockchain?
+
+      #gameOverScreen.splash.text-splash(v-if="gameOver")
+        img(src="https://s3.eu-central-1.amazonaws.com/afistfulofsatoshis.fun/jail.png" style="height: 150px")
+        h2 GAME OVER
+        p Too bad...<b>you killed an innocent</b> and end up in prison, <b>losing all your money</b>! Why not play again, if your wallet is not empty ;) ?
+
+      #gameWonScreen.splash.text-splash(v-if="gameWon")
+        img(src="https://s3.eu-central-1.amazonaws.com/afistfulofsatoshis.fun/vault.png" style="height: 170px")
+        h2 YOU WON!
+        p Well done! You killed Billy the Kid. You can know <b>claim your reward</b> and withdraw money from the Sheriff's vault!
+        br
+        button(id="claimRewardButton" @click="claimReward") Claim your reward!
 </template>
 
 <script>
@@ -42,7 +54,7 @@ export default {
     return {
       score: -1,
       sheriffState: 'pending_request',
-      rewardAmount: null
+      moneyInVault: null
     }
   },
   computed: {
@@ -57,6 +69,12 @@ export default {
     },
     pendingAnswer() {
       return this.sheriffState == 'pending_answer';
+    },
+    gameOver() {
+      return this.sheriffState == 'game_over';
+    },
+    gameWon() {
+      return this.sheriffState == 'game_won';
     }
   },
   methods: {
@@ -68,7 +86,7 @@ export default {
     },
     shoot: function(evt){
       var audio = new Audio('https://s3.eu-central-1.amazonaws.com/afistfulofsatoshis.fun/bullet.mp3');
-      // audio.play();
+      audio.play();
 
       var canvas = document.getElementById('shootingRange');
       var rect = canvas.getBoundingClientRect();
@@ -91,7 +109,7 @@ export default {
       this.score+= 1;
       if (this.gameFinished){
         setTimeout(this.cleanup(), 500);
-        this.getRewardAmount();
+        this.getMoneyInVaultAmount();
       }
     },
     cleanup() {
@@ -100,10 +118,16 @@ export default {
           images[i].style.visibility = 'hidden';
       }
     },
-    getRewardAmount() {
+    getMoneyInVaultAmount() {
       self = this;
       web3.eth.getBalance(address, function(e,r){
-        self.rewardAmount = r.c[0]/10000;
+        self.moneyInVault = r.c[0]/10000;
+      });
+    },
+    claimReward() {
+      this.contract().withdraw(function(e,r){
+        console.log(e);
+        console.log(r);
       });
     },
     goToSheriff() {
@@ -132,6 +156,8 @@ export default {
     }
   },
   mounted() {
+    self = this;
+
     $(document).bind('DOMNodeInserted', function(event) {
       if (event.target.id == "cowboy") {
         moveCowBoy();
@@ -183,14 +209,18 @@ export default {
 
     this.contract().outlawKilled(function(error, result) {
       console.log('outlawKilled');
-      if (error) return;
       console.log(result.args);
+      if (result.args.playerAddress = self.account()){
+        self.evolveSheriffState('game_won');
+      }
     });
 
     this.contract().innocentKilled(function(error, result) {
       console.log('innocentKilled');
-      if (error) return;
       console.log(result.args);
+      if (result.args.playerAddress = self.account()){
+        self.evolveSheriffState('game_over');
+      }
     });
   }
 }

@@ -2,7 +2,7 @@ export const abi = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "reward",
+		"name": "maximumPayout",
 		"outputs": [
 			{
 				"name": "",
@@ -16,7 +16,21 @@ export const abi = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "minimumStake",
+		"name": "entryTicket",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "moneyInVault",
 		"outputs": [
 			{
 				"name": "",
@@ -31,6 +45,44 @@ export const abi = [
 		"payable": true,
 		"stateMutability": "payable",
 		"type": "fallback"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "playerAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "paidOutValue",
+				"type": "uint256"
+			}
+		],
+		"name": "rewardPaid",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "randomNumber",
+				"type": "uint256"
+			}
+		],
+		"name": "newRandomNumber_uint",
+		"type": "event"
 	},
 	{
 		"constant": false,
@@ -49,15 +101,6 @@ export const abi = [
 			}
 		],
 		"name": "__callback",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "withdraw",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -95,7 +138,7 @@ export const abi = [
 		"inputs": [
 			{
 				"indexed": false,
-				"name": "",
+				"name": "queryId",
 				"type": "bytes32"
 			}
 		],
@@ -107,11 +150,11 @@ export const abi = [
 		"inputs": [
 			{
 				"indexed": false,
-				"name": "",
-				"type": "address"
+				"name": "randomBytes",
+				"type": "bytes"
 			}
 		],
-		"name": "innocentKilled",
+		"name": "newRandomNumber_bytes",
 		"type": "event"
 	},
 	{
@@ -119,11 +162,11 @@ export const abi = [
 		"inputs": [
 			{
 				"indexed": false,
-				"name": "",
+				"name": "playerAddress",
 				"type": "address"
 			}
 		],
-		"name": "outlawKilled",
+		"name": "innocentKilled",
 		"type": "event"
 	},
 	{
@@ -137,23 +180,11 @@ export const abi = [
 		"inputs": [
 			{
 				"indexed": false,
-				"name": "",
-				"type": "bytes"
+				"name": "playerAddress",
+				"type": "address"
 			}
 		],
-		"name": "newRandomNumber_bytes",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "newRandomNumber_uint",
+		"name": "outlawKilled",
 		"type": "event"
 	}
 ]
