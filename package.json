@@ -7,9 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "preproduction": "npm run build",
-    "production": "aws s3 cp dist/ s3://afistfulofsatoshis.cryptizens.io --recursive --profile cryptizens"
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
     "pug": "^2.0.0-rc.4",
